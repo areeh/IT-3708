@@ -8,12 +8,16 @@ public class Obstacle {
 	private int radius;
 	private Random rng;
 
-	//No arguments gives random obstacle
-	public Obstacle() {
+	//Round obstacle in a random position
+	public Obstacle(Settings settings) {
 		rng = new Random();
 		
-		this.position = new Vector2D(rng.nextDouble()*100, rng.nextDouble()*100);
-		this.radius = 5;
+		//Limit position to simulation size		
+		double x = settings.getObstacleRadius() + (800-settings.getObstacleRadius() -settings.getObstacleRadius())*rng.nextDouble();
+		double y = settings.getObstacleRadius() + (800-settings.getObstacleRadius() -settings.getObstacleRadius())*rng.nextDouble();
+		
+		this.position = new Vector2D(x, y);
+		this.radius = settings.getObstacleRadius();
 	}
 	
 	public Vector2D getPosition() {

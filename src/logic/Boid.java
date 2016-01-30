@@ -14,8 +14,6 @@ public class Boid {
 	private int sizeRadius;
 	
 	private Random rng;
-	
-	//TODO: Max velocity variable and logic
 
 	//Only settings arg gives random boid
 	public Boid(Settings settings) {

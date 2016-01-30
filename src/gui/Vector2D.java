@@ -1,20 +1,3 @@
-/*
- *  Copyright (C) 2008 Miika-Petteri Matikainen
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
 package gui;
 
 /**
@@ -178,26 +161,6 @@ public class Vector2D {
         return this.unit().mul(max);
     }
     
-    /**
-     * Represents the vector in the orthogonal base spanned by two vectors.
-     * The given vectors must be orthogonal.
-     * 
-     * @param a vector
-     * @param b vector
-     * @return vector in new base
-     */
-    public Vector2D inOrthogonalBasis(Vector2D a, Vector2D b) {
-        double na = a.norm();
-        double nb = b.norm();
-        try {
-            this.checkZero(na);
-            this.checkZero(nb);
-        } catch (ArithmeticException e) {
-            return new Vector2D();
-        }
-        return new Vector2D(this.dot(a) / (na * na), this.dot(b) / (nb * nb));
-    }
-    
     @Override
     /**
      * Are the given vectors equal, i.e. are the coordinates the same. The
@@ -213,17 +176,6 @@ public class Vector2D {
         }
         
         return Math.abs(this.x - v.x) < 0.000001 && Math.abs(this.y - v.y) < 0.000001;
-    }
-    
-    @Override
-    /**
-     * Returns the string representation of the vector. The format is as follows:
-     * (x, y)
-     * 
-     * @return string representing the vector
-     */
-    public String toString() {
-        return "(" + this.x + ", " + this.y + ")";
     }
     
     /**

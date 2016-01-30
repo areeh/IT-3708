@@ -43,9 +43,6 @@ public class DrawingArea extends JPanel implements Runnable {
     private Color boidVelocityColor;
     private Color sightColor;
     private Color obstacleColor;
-    private Color obstacleDragColor;
-    private Color obstacleInvalidColor;
-    private Color arrowColor;
     private int width;
     private int height;
     private boolean stopped;
@@ -55,7 +52,6 @@ public class DrawingArea extends JPanel implements Runnable {
     private boolean antiAliasing;
     private Graphics2D gbuffer;
     private BufferedImage buffer;
-    //private MouseDragger mouseDragger;
     
     /**
      * Creates a new drawing area with the given size.
@@ -75,8 +71,6 @@ public class DrawingArea extends JPanel implements Runnable {
         this.boidVelocityColor = Color.RED;
         this.sightColor = Color.GRAY;
         this.obstacleColor = Color.GRAY;
-        this.obstacleDragColor = Color.BLACK;
-        this.obstacleInvalidColor = Color.RED;
         this.width = w;
         this.height = h;
         this.stopped = false;
@@ -90,9 +84,6 @@ public class DrawingArea extends JPanel implements Runnable {
         this.buffer = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         this.gbuffer = (Graphics2D) this.buffer.getGraphics();
         
-        //this.mouseDragger = new MouseDragger(this.sim);
-        //this.addMouseListener(this.mouseDragger);
-        //this.addMouseMotionListener(this.mouseDragger);
     }
 
     /**
@@ -146,16 +137,6 @@ public class DrawingArea extends JPanel implements Runnable {
         }
         
         
-        /*
-        if (this.mouseDragger.isDragging()) {
-            if (this.mouseDragger.getButton() == MouseEvent.BUTTON1) {
-                this.drawDragArrow(gbuffer);
-            } else if (this.mouseDragger.getButton() == MouseEvent.BUTTON3) {
-                this.drawDragCircle(gbuffer);
-            }
-        }
-        */
-        
         // draw the back buffer on screen
         this.getGraphics().drawImage(buffer, 0, 0, w, h, 0, 0, w, h, null);
     }
@@ -165,36 +146,6 @@ public class DrawingArea extends JPanel implements Runnable {
      * 
      * @param g graphics
      */
-    
-    /*
-    private void drawDragCircle(Graphics2D g) {
-        int r = this.mouseDragger.dragLength();
-        
-        if (this.sim.obstacleAllowed(this.mouseDragger.getX0(), this.mouseDragger.getY0(), r)) {
-            g.setColor(this.obstacleDragColor);
-        } else {
-            g.setColor(this.obstacleInvalidColor);
-        }
-        
-        // calculate the bounding box coordinates
-        g.drawOval(this.mouseDragger.getX0() - r, this.mouseDragger.getY0() - r, 2 * r, 2 * r);
-        g.drawLine(this.mouseDragger.getX0(), this.mouseDragger.getY0(), this.mouseDragger.getX1(), this.mouseDragger.getY1());
-        g.drawString("" + r, this.mouseDragger.getX0(), this.mouseDragger.getY0());
-    }
-    /*
-    
-    /**
-     * Draws an arrow.
-     * 
-     * @param g graphics
-     */
-    
-    /*
-    private void drawDragArrow(Graphics2D g) {
-        g.setColor(this.arrowColor);
-        g.drawLine(this.mouseDragger.getX0(), this.mouseDragger.getY0(), this.mouseDragger.getX1(), this.mouseDragger.getY1());
-    }
-    */
 
     /**
      * Draws the boids. Draws also their sights and steering vectors if they are

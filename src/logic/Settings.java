@@ -8,6 +8,7 @@ public class Settings {
 	private double alignmentFactor;
 	private double cohesionFactor;
 	private double borderAvoidanceFactor;
+	private int obstacleRadius;
 	private boolean wrapArea;
 	private int areaHeight;
 	private int areaWidth;
@@ -115,6 +116,14 @@ public class Settings {
 	
 	public void setSepRadius(double sepRadius) {
 		this.sepRadius = sepRadius;
+	}
+
+	public int getObstacleRadius() {
+		return obstacleRadius;
+	}
+
+	public void setObstacleRadius(int obstacleRadius) {
+		this.obstacleRadius = obstacleRadius;
 	}
 	
 }
