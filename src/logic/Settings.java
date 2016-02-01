@@ -1,29 +1,42 @@
+//Inspired by https://github.com/nablaa/boids-simulation
+
 package logic;
 
 public class Settings {
 	
 	private double maxSpeed;
+	private double maxPredatorSpeed;
 	private double maxForce;
 	private double separationFactor;
 	private double alignmentFactor;
 	private double cohesionFactor;
 	private double borderAvoidanceFactor;
+	private double obstacleAvoidanceFactor;
 	private int obstacleRadius;
 	private boolean wrapArea;
 	private int areaHeight;
 	private int areaWidth;
 	private double viewRadius;
+	private double predViewRadius;
 	private double sepRadius;
+	private double chaseFactor;
+	private double avoidanceDistance;
 	
 	public Settings() {
-		this.maxSpeed = 4;
-		this.maxForce = 2;
+		this.maxSpeed = 1.5;
+		this.maxPredatorSpeed = 3;
+		this.maxForce = 0.5;
 		this.separationFactor = 1;
-		this.sepRadius = 10;
-		this.alignmentFactor = 1;
-		this.cohesionFactor = 0.01;
+		this.obstacleRadius = 15;
+		this.sepRadius = 60;
+		this.alignmentFactor = 0.5;
+		this.cohesionFactor = 0.1;
+		this.chaseFactor = 1;
+		this.avoidanceDistance = 50;
 		this.borderAvoidanceFactor = 1;
-		this.setViewRadius(25);
+		this.obstacleAvoidanceFactor = 5;
+		this.viewRadius = 60;
+		this.predViewRadius = 70;
 		this.wrapArea = true;
 		this.setAreaHeight(800);
 		this.setAreaWidth(800);
@@ -124,6 +137,34 @@ public class Settings {
 
 	public void setObstacleRadius(int obstacleRadius) {
 		this.obstacleRadius = obstacleRadius;
+	}
+
+	public double getMaxPredatorSpeed() {
+		return maxPredatorSpeed;
+	}
+
+	public void setMaxPredatorSpeed(double maxPredatorSpeed) {
+		this.maxPredatorSpeed = maxPredatorSpeed;
+	}
+
+	public double getChaseFactor() {
+		return chaseFactor;
+	}
+
+	public double getPredViewRadius() {
+		return predViewRadius;
+	}
+
+	public void setPredViewRadius(double predViewRadius) {
+		this.predViewRadius = predViewRadius;
+	}
+
+	public double getObstacleAvoidanceFactor() {
+		return obstacleAvoidanceFactor;
+	}
+
+	public double getAvoidanceDistance() {
+		return avoidanceDistance;
 	}
 	
 }

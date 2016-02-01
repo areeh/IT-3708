@@ -1,20 +1,6 @@
-/*
- *  Copyright (C) 2008 Miika-Petteri Matikainen
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+//Based on  https://github.com/nablaa/boids-simulation
+
+
 package gui;
 
 import java.awt.Color;
@@ -26,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import logic.Boid;
+import logic.Predator;
 import logic.Obstacle;
 import logic.Simulation;
 import logic.Vector2D;
@@ -37,7 +24,9 @@ public class DrawingArea extends JPanel implements Runnable {
     private Simulation sim;
     private long sleepTime;
     private double boidSize;
+    private double boidPredatorSize;
     private Color boidColor;
+    private Color boidPredatorColor;
     private Color boidEdgeColor;
     private Color boidSteeringColor;
     private Color boidVelocityColor;
@@ -65,7 +54,9 @@ public class DrawingArea extends JPanel implements Runnable {
         this.sim = simulation;
         this.sleepTime = 10;
         this.boidSize = 10;
+        this.boidPredatorSize = 15;
         this.boidColor = Color.BLUE;
+        this.boidPredatorColor = Color.RED;
         this.boidEdgeColor = Color.BLACK;
         this.boidSteeringColor = Color.DARK_GRAY;
         this.boidVelocityColor = Color.RED;
@@ -74,10 +65,9 @@ public class DrawingArea extends JPanel implements Runnable {
         this.width = w;
         this.height = h;
         this.stopped = false;
-
-        this.showControlVector = true;
+        this.showControlVector = false;
         this.showBoidSight = false;
-        this.showBoidVelocity = true;
+        this.showBoidVelocity = false;
         this.antiAliasing = true;
         
         // create a buffer to allow double buffering
@@ -95,6 +85,9 @@ public class DrawingArea extends JPanel implements Runnable {
             if (!this.stopped) {
                 synchronized (this.sim.getBoids()) {
                     this.sim.updateBoids();
+                }
+                synchronized (this.sim.getPredators()) {
+                	this.sim.updatePredators();
                 }
             }
             
@@ -132,6 +125,10 @@ public class DrawingArea extends JPanel implements Runnable {
             this.drawBoids(gbuffer);
         }
         
+        synchronized (this.sim.getPredators()) {
+        	this.drawPredators(gbuffer);
+        }
+        
         synchronized (this.sim.getObstacles()) {
             this.drawObstacles(gbuffer);
         }
@@ -156,11 +153,9 @@ public class DrawingArea extends JPanel implements Runnable {
     private void drawBoids(Graphics2D g) {
         for (Boid b : this.sim.getBoids()) {
             
-        	/*
         	if (this.showBoidSight) {
-                this.drawBoidSight(b, g);
+                this.drawBoidSight(b, g, this.sim.getSettings().getViewRadius());
             }
-            */
         	
             if (this.showControlVector) {
                 this.drawBoidSteering(b, g);
@@ -168,7 +163,22 @@ public class DrawingArea extends JPanel implements Runnable {
             if (this.showBoidVelocity) {
                 this.drawBoidVelocity(b, g);
             }
-            this.drawBoid(b, g);
+            this.drawBoid(b, g, this.boidColor, this.boidSize);
+        }
+    }
+    
+    private void drawPredators(Graphics2D g) {
+        for (Predator p : this.sim.getPredators()) {
+        	if (this.showBoidSight) {
+        		this.drawBoidSight(p, g, this.sim.getSettings().getPredViewRadius());
+        	}
+        	if (this.showControlVector) {
+        		this.drawBoidSteering(p, g);
+        	}
+        	if (this.showBoidVelocity) {
+        		this.drawBoidVelocity(p, g);
+        	}
+        	this.drawBoid(p, g, this.boidPredatorColor, this.boidPredatorSize);
         }
     }
     
@@ -226,16 +236,16 @@ public class DrawingArea extends JPanel implements Runnable {
      * @param b boid to draw
      * @param g graphics
      */
-    private void drawBoid(Boid b, Graphics2D g) {
-        g.setColor(this.boidColor);
-        Vector2D t = b.getVelocity().unit().mul(this.boidSize); // front vector
+    private void drawBoid(Boid b, Graphics2D g, Color boidColor, double boidSize) {
+        g.setColor(boidColor);
+        Vector2D t = b.getVelocity().unit().mul(boidSize); // front vector
         
         // if the boid is stopped, draw the boid facing right
         if (t.isZero()) {
-            t = new Vector2D(this.boidSize, 0);
+            t = new Vector2D(boidSize, 0);
         }
         
-        Vector2D r = t.perpendicular().unit().mul(this.boidSize / 2.5); // left vector
+        Vector2D r = t.perpendicular().unit().mul(boidSize / 2.5); // left vector
         Vector2D s = r.mul(-1); // right vector
         Vector2D p1 = b.getPosition().add(r); // right point
         Vector2D p2 = b.getPosition().add(s); // left point
@@ -260,29 +270,16 @@ public class DrawingArea extends JPanel implements Runnable {
      * @param g graphics
      */
     
-    /*
-    private void drawBoidSight(Boid b, Graphics2D g) {
+    private void drawBoidSight(Boid b, Graphics2D g, double viewRadius) {
         g.setColor(this.sightColor);
         
         // calculate bounding box for the view distance circle
-        int x0 = (int)(b.getPosition().getX() - this.sim.getSettings().getViewDistance());
-        int y0 = (int)(b.getPosition().getY() - this.sim.getSettings().getViewDistance());
-        int w = (int)(this.sim.getSettings().getViewDistance()) * 2;
-        int h = (int)(this.sim.getSettings().getViewDistance()) * 2;
+        int x0 = (int)(b.getPosition().getX() - viewRadius);
+        int y0 = (int)(b.getPosition().getY() - viewRadius);
+        int w = (int)(viewRadius) * 2;
+        int h = (int)(viewRadius) * 2;
         g.drawOval(x0, y0, w, h);
-        
-        // calculate the lines to represent the view angle
-        double beta = 180 - this.sim.getSettings().getViewAngle();
-        double dx = this.sim.getSettings().getViewDistance() * Math.cos(beta * Math.PI / 180.0);
-        double dy = this.sim.getSettings().getViewDistance() * Math.cos((90 - beta) * Math.PI / 180.0);
-        Vector2D rv = b.getVelocity().unit().mul(-1 * dx);
-        Vector2D rs = b.getVelocity().perpendicular().unit().mul(dy);
-        Vector2D t = b.getPosition().add(rv).add(rs);
-        Vector2D s = b.getPosition().add(rv).add(rs.mul(-1));
-        g.drawLine((int)b.getPosition().getX(), (int)b.getPosition().getY(), (int)t.getX(), (int)t.getY());
-        g.drawLine((int)b.getPosition().getX(), (int)b.getPosition().getY(), (int)s.getX(), (int)s.getY());
     }
-    */
     
     /**
      * Draws the boid steering force.

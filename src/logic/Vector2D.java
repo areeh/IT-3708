@@ -1,20 +1,8 @@
-/*
- *  Copyright (C) 2008 Miika-Petteri Matikainen
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+//Based on https://github.com/nablaa/boids-simulation
+//Basic vector maths implementation
+
+//distance helper added by Are Haartveit
+
 package logic;
 
 /**
@@ -144,6 +132,15 @@ public class Vector2D {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
     
+    //Distance between two vector (endpoints)
+    public double dist(Vector2D other) {
+    	//Connecting vector
+    	Vector2D connect = this.sub(other);
+    	
+    	return connect.norm();
+    }
+    
+    
     /**
      * Dot product with another vector.
      * 
@@ -247,5 +244,5 @@ public class Vector2D {
     public boolean isZero() {
         return x >= -0.000001 && x <= 0.000001 && y >= -0.000001 && y <= 0.000001;
     }
-    
+
 }

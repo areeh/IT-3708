@@ -1,24 +1,18 @@
+//Based on https://github.com/nablaa/boids-simulation
+
 package gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Properties;
 
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import logic.Simulation;
 
@@ -31,7 +25,6 @@ public class Gui extends JFrame {
     private DrawingArea area;
     private Thread thread;
     private OptionsPanel options;
-    private Properties messages;
     
     /**
      * Creates a new gui window. Loads Gui strings from 'messages' file.
@@ -39,7 +32,6 @@ public class Gui extends JFrame {
      * @param sim simulation
      */
     public Gui(Simulation sim) {
-        //this.messages = this.loadMessages("messages");
         this.setTitle("Boids");
         this.sim = sim;
         this.area = new DrawingArea(this.sim, 800, 800);
@@ -121,10 +113,8 @@ public class Gui extends JFrame {
             }           
         });
         
-        // Potential addition
         
-        /*
-        JCheckBoxMenuItem boidSight = new JCheckBoxMenuItem(this.messages.getProperty("STR_MENU_BOID_SIGHT"));
+        JCheckBoxMenuItem boidSight = new JCheckBoxMenuItem("Show boid sight");
         boidSight.setSelected(this.area.isShowBoidSight());
         boidSight.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -132,7 +122,6 @@ public class Gui extends JFrame {
                 area.setShowBoidSight(item.isSelected());
             }           
         });
-        */
         
         simulationMenu.add(newSimulation);
         simulationMenu.add(clear);
@@ -141,8 +130,7 @@ public class Gui extends JFrame {
         
         optionsMenu.add(control);
         optionsMenu.add(velocity);
-        
-        //optionsMenu.add(boidSight);
+        optionsMenu.add(boidSight);
 
         simulationMenu.getPopupMenu().setLightWeightPopupEnabled(false); // avoid drawing area overlap
         optionsMenu.getPopupMenu().setLightWeightPopupEnabled(false); // avoid drawing area overlap

@@ -1,20 +1,3 @@
-/*
- *  Copyright (C) 2008 Miika-Petteri Matikainen
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
 package gui;
 
 import java.awt.GridLayout;
@@ -35,16 +18,12 @@ import javax.swing.event.ChangeListener;
 
 import logic.Simulation;
 
-/**
- * Provides a panel which contains controls to affect the simulation when it's
- * running.
- */
 public class OptionsPanel extends JPanel implements Observer {
     private Simulation sim;
     private DrawingArea area;
     private JSpinner numberOfBoids;
     private JSpinner boidSpeed;
-    //private JSpinner boidFovAngle;
+    private JSpinner boidPredatorSpeed;
     private JSpinner boidSepRadius;
     private JSpinner boidFovDist;
     private JSpinner boidSeparationFactor;
@@ -52,10 +31,12 @@ public class OptionsPanel extends JPanel implements Observer {
     private JSpinner boidCohesionFactor;
     private JSpinner sleepTime;
     private JSpinner maxForce;
-    //private JSpinner mass;
     private JButton startButton;
+    private JButton addPredatorButton;
     private JCheckBox wrapArea;
-    //private Properties messages;
+	private JButton addObstacleButton;
+	private JButton removeObstaclesButton;
+	private JButton removePredatorsButton;
     
     /**
      * Creates new options panel.
@@ -69,8 +50,7 @@ public class OptionsPanel extends JPanel implements Observer {
         super();
         this.sim = simulation;
         this.area = area;
-        //this.messages = messages;
-        this.setLayout(new GridLayout(4, 6));
+        this.setLayout(new GridLayout(8, 4));
         
         startButton = new JButton("Pause");
         startButton.addActionListener(new ActionListener() {
@@ -104,10 +84,63 @@ public class OptionsPanel extends JPanel implements Observer {
         this.add(new JLabel("Speed"));
         this.add(boidSpeed);
         
+        boidPredatorSpeed = new JSpinner(new SpinnerNumberModel(this.sim.getSettings().getMaxPredatorSpeed(), 1, 100, 0.01));
+        
+        boidPredatorSpeed.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                sim.getSettings().setMaxPredatorSpeed(((SpinnerNumberModel)boidPredatorSpeed.getModel()).getNumber().intValue());
+            }
+        });
+        
+        this.add(new JLabel("Predator Speed"));
+        this.add(boidPredatorSpeed);
+        
         /*
         this.add(new JLabel("View Angle"));
         this.add(boidFovAngle);
         */
+        
+        addPredatorButton = new JButton("Add Predator");
+        addPredatorButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	sim.addRandomPredator();
+            }
+        });
+        
+        this.add(new JLabel(""));
+        this.add(addPredatorButton);
+        
+        removePredatorsButton = new JButton("Remove Predators");
+        removePredatorsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	sim.removePredators();
+            }
+        });
+        
+        this.add(new JLabel(""));        
+        this.add(removePredatorsButton);
+        
+        addObstacleButton = new JButton("Add Obstacle");
+        addObstacleButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	sim.addRandomObstacle();
+            }
+        });
+        
+        this.add(new JLabel(""));
+        this.add(addObstacleButton);
+        
+        removeObstaclesButton = new JButton("Remove Obstacles");
+        removeObstaclesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	sim.removeObstacles();
+            }
+        });
+        
+        this.add(new JLabel(""));
+        this.add(removeObstaclesButton);
+        
+        
         
         boidFovDist = new JSpinner(new SpinnerNumberModel(sim.getSettings().getViewRadius(), 5, 500, 1));
         
