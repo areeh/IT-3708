@@ -20,7 +20,7 @@ public class Predator extends Boid {
 		
 		
 		Vector2D chase = calcChaseForce(neighbours).mul(settings.getChaseFactor());
-		Vector2D avoid = calcAvoidObstacleForce2(obstacles);
+		Vector2D avoid = calcAvoidObstacleForce3(obstacles);
 		Vector2D res = chase.add(avoid);
 		
 		this.force = res.limit(this.settings.getMaxForce());

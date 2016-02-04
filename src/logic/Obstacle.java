@@ -35,7 +35,7 @@ public class Obstacle {
 	}
 	
 	public boolean isOverlap(Obstacle other) {
-		if (this.position.dist(other.getPosition()) < this.radius + other.getRadius()) {
+		if (this.position.dist(other.getPosition()) < this.radius + other.getRadius() + 16) {
 			return true;
 		}
 		return false;

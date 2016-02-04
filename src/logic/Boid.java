@@ -4,7 +4,6 @@ package logic;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Vector;
 
 import logic.Obstacle;
 import logic.Vector2D;
@@ -28,7 +27,7 @@ public class Boid {
 		this.position = new Vector2D(rng.nextDouble()*800, rng.nextDouble()*800);
 		this.velocity = new Vector2D(rng.nextDouble()*10, rng.nextDouble()*10);
 		this.force = new Vector2D();
-		this.sizeRadius = 5;
+		this.sizeRadius = 10;
 	}
 	
 	//Based on pseudocode from assignment
@@ -38,7 +37,7 @@ public class Boid {
 			
 			this.force = new Vector2D();
 			
-			Vector2D avoid = calcAvoidObstacleForce2(obstacles).mul(settings.getObstacleAvoidanceFactor());
+			Vector2D avoid = calcAvoidObstacleForce3(obstacles).mul(settings.getObstacleAvoidanceFactor());
 			Vector2D sep = calcSepForce(neighbours, settings.getSepRadius()).mul(settings.getSeparationFactor());
 			
 			if (closePreds.size() > 0) {
@@ -76,14 +75,16 @@ public class Boid {
 	
 	//Handles collisions (moves boid outside object if hit), same method as obstacle overlap
 	public void obstacleCollision(ArrayList<Obstacle> obstacles) {
-		for (Obstacle o : obstacles) {
-			Vector2D direction = this.getPosition().sub(o.getPosition());
-			double dist = direction.norm();
-			double diff = (o.getRadius() + this.getSizeRadius()) - dist;
-			if (diff > 0) {
-				this.force = this.force.add(direction.unit().mul(diff)).limit(settings.getMaxForce());
-				this.position = this.position.add(direction.unit().mul(diff));
-			}
+		synchronized (obstacles) {
+			for (Obstacle o : obstacles) {
+				Vector2D direction = this.getPosition().sub(o.getPosition());
+				double dist = direction.norm();
+				double diff = (o.getRadius() + this.getSizeRadius()) - dist;
+				if (diff > 0) {
+					this.force = this.force.add(direction.unit().mul(diff)).limit(settings.getMaxForce());
+					this.position = this.position.add(direction.unit().mul(diff));
+				}
+			}			
 		}
 	}
 	
@@ -144,7 +145,7 @@ public class Boid {
 		}
 		
 		//Obstacle sight directly forward
-		Vector2D sight = this.position.add(this.velocity.unit().mul(60));
+		Vector2D sight = this.position.add(this.velocity.unit().mul(30));
 		boolean ret = false;
 		Obstacle closest = obstacles.get(0);
 		double closestDist = this.getPosition().dist(obstacles.get(0).getPosition());
@@ -154,11 +155,11 @@ public class Boid {
 			double currentDist = this.getPosition().dist(o.getPosition());
 			if (currentDist <= closestDist) {
 				if (
-					(sight.dist(o.getPosition()) < o.getRadius() + 3)
+					(sight.dist(o.getPosition()) < o.getRadius() + 7)
 					|| 
-					(sight.mul(0.5).dist(o.getPosition()) < o.getRadius() + 3)
+					(sight.mul(0.5).dist(o.getPosition()) < o.getRadius() + 7)
 					||
-					(sight.mul(0.2).dist(o.getPosition()) < o.getRadius()+ 3)
+					(this.position.dist(o.getPosition()) < o.getRadius()+ 7)
 					){
 					ret = true;
 					closest = o;
@@ -174,7 +175,51 @@ public class Boid {
 		}
 	}
 	
-	//nablaa version
+	//Extended version
+	protected Vector2D calcAvoidObstacleForce3(ArrayList<Obstacle> obstacles) {
+		if (obstacles.size() < 1) {
+			return new Vector2D();
+		}
+		
+		//Obstacle sight directly forward
+		double dynamicLength = this.velocity.norm() / (this.settings.getMaxSpeed());
+		Vector2D sight = this.position.add(this.velocity.unit().mul(dynamicLength).mul(30));
+		int type = 0;
+		Obstacle closest = obstacles.get(0);
+		double closestDist = this.getPosition().dist(obstacles.get(0).getPosition());
+		
+		//Find closest obstacle on collision course
+		for (Obstacle o : obstacles) {
+			double currentDist = this.getPosition().dist(o.getPosition());
+			if (currentDist <= closestDist) {
+				if (sight.dist(o.getPosition()) < o.getRadius() + 7){ 
+					type = 3;
+					closest = o;
+					closestDist = currentDist;
+					} else if (sight.mul(0.5).dist(o.getPosition()) < o.getRadius() + 7) {
+						type = 2;
+						closest = o;
+						closestDist = currentDist;
+					} else if	(this.position.dist(o.getPosition()) < o.getRadius()+ 7) {
+					type = 1;
+					closest = o;
+					closestDist = currentDist;
+					}
+				}
+			}
+		if (type == 3) {
+			return sight.sub(closest.getPosition()).unit();
+		} else if (type == 2) {
+			return sight.mul(0.5).sub(closest.getPosition()).unit();
+		} else if (type == 1) {
+			return this.position.sub(closest.getPosition()).unit();
+		}
+		else {
+			return new Vector2D();
+		}
+	}
+	
+	//nablaa obstacle avoidance version
     protected Vector2D calcAvoidObstacleForce2(ArrayList<Obstacle> obstacles) {
         Vector2D nearest = null; // the position of the nearest obstacle
         

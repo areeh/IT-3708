@@ -1,3 +1,5 @@
+//Based on https://github.com/nablaa/boids-simulation
+
 package gui;
 
 import java.awt.GridLayout;

@@ -15,7 +15,7 @@ public class Simulation {
 		obstacles = new ArrayList<Obstacle>();
 		predators = new ArrayList<Predator>();
 		settings = new Settings();
-		boids = addRandomBoids(100);
+		boids = addRandomBoids(200);
 	}
 	
 	public void reset() {
